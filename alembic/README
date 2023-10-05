@@ -1,0 +1,48 @@
+Alembic useful info
+
+Alembic is a database migration tool. It can also automatically infer the schemas of existing SQL tables.
+
+SETUP
+To use it, first pip install alembic. Then, run
+        alembic init <name of directory to be created>
+This will generate a directory with all the files required to use alembic with your database.
+
+After running the command, go to the new directory, to env.py, import your sqlalchemy declarative_base model
+(called Base in this project). Import the model from the models folder, not from database, where it was declared,
+otherwise alembic will not have access to all the models stored there.
+
+After importing the Base model, set the target_metadata variable to Base.metadata.
+Also, set the "sqlalchemy.url" config to the same url provided to sqlalchemy. This will overwrite the original
+setting that can be found in alembic.ini. Any other setting can be overwritten in the same way, with the command
+config.set_main_option("<config to overwrite>", <new_config_value>)
+
+
+REVISION
+An alembic revision is used to track all the changes done to the database, just like a version control system.
+Run the following console command
+        alembic revision
+This will create a new file in the versions directory. This file has an upgrade and a downgrade function that you need
+to write to tell alembic what to do when swapping from one version to another.
+Here are lots of useful commands for this: https://alembic.sqlalchemy.org/en/latest/api/ddl.html
+When running the alembic revision command, you can also specify a message describing the new version being created,
+in the same way done with git commit -m "message". alembic revision -m "message"
+
+
+Once the upgrade and downgrade logic are written, you can run
+        alembic upgrade <revision version> (or head for upgrading to latest version, or +1 for one level up)
+This will create, update or remove databases based on the logic written in the upgrade function.
+To return to a previous version, run
+        alembic downgrade <revision number> (or -1 for downgrading to previous version)
+
+
+You can also run
+         alembic revision --autogenerate
+This will create a script similar to the ones before however, it will automatically write the upgrade and downgrade
+functions based on your models in the models.py script and the current state of the database. Creating all the
+sql alchemy models that don't already exist, changing existing tables to match the model definitions from models.py
+and removing any other tables that are not declared in the models.py file.
+
+OTHER TERMINAL COMMANDS
+alembic current => get current version of db
+alembic history => show all revisions in order
+alembic --help => to check all available commands and options.
